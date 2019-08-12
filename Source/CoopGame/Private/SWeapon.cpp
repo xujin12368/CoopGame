@@ -96,3 +96,13 @@ void ASWeapon::Tick(float DeltaTime)
 
 }
 
+FVector ASWeapon::GetMeshSocketLocationByName(FName SocketName) const
+{
+	return WeaponMeshComp->GetSocketLocation(SocketName);
+}
+
+FRotator ASWeapon::GetMeshSocketRotationByName(FName SocketName) const
+{
+	return WeaponMeshComp->GetSocketRotation(SocketName);
+}
+

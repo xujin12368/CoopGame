@@ -24,7 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	virtual void Fire();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -54,5 +54,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	FVector GetMeshSocketLocationByName(FName SocketName) const;
+
+	FRotator GetMeshSocketRotationByName(FName SocketName) const;
 
 };

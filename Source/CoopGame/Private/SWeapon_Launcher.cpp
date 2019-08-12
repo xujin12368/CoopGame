@@ -1,0 +1,32 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "SWeapon_Launcher.h"
+#include "GameFramework/Actor.h"
+#include "Engine/World.h"
+
+ASWeapon_Launcher::ASWeapon_Launcher()
+{
+	SocketName = "MuzzleSocket";
+}
+
+void ASWeapon_Launcher::Fire()
+{
+	AActor* MyOwner = GetOwner();
+	if (MyOwner)
+	{
+		FVector EyeLocation;
+		FRotator EyeRotation;
+		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+		if (Projectile)
+		{
+			AActor* ProjectileBP = GetWorld()->SpawnActor<AActor>(
+				Projectile,
+				GetMeshSocketLocationByName(SocketName),
+				EyeRotation
+				);
+
+			ProjectileBP->InitialLifeSpan = 5.f;
+		}
+	}
+}
