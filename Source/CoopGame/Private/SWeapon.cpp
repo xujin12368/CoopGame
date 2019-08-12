@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -14,6 +15,8 @@ ASWeapon::ASWeapon()
 
 	WeaponMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMeshComp"));
 	RootComponent = WeaponMeshComp;
+
+	MuzzleSocketName = "MuzzleSocket";
 }
 
 // Called when the game starts or when spawned
@@ -43,8 +46,6 @@ void ASWeapon::Fire()
 		QueryParams.bTraceComplex = true;
 		if (GetWorld()->LineTraceSingleByChannel(OutHitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 		{
-			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 2.f, 0, 5.f);
-
 			// UGameplayStatics::ApplyDamage(OutHitResult.GetActor(), BaseDamage, MyOwner->GetInstigatorController(), this, DamageType);
 			UGameplayStatics::ApplyPointDamage(
 				OutHitResult.GetActor(), 
@@ -55,7 +56,24 @@ void ASWeapon::Fire()
 				this, 
 				DamageType
 			);
+
+			if (ImpactEffect)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, OutHitResult.ImpactPoint, OutHitResult.ImpactNormal.Rotation());
+			}
+
 		}
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 2.f, 0, 5.f);
+
+		if (MuzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAttached(
+				MuzzleEffect,
+				WeaponMeshComp,
+				MuzzleSocketName
+			);
+		}
+
 	}
 }
 

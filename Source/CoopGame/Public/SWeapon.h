@@ -7,6 +7,8 @@
 #include "SWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UParticleSystem;
+class UDamageType;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -33,6 +35,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float BaseDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName MuzzleSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* ImpactEffect;
 
 public:	
 	// Called every frame
