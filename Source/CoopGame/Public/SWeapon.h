@@ -28,6 +28,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* WeaponMeshComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float BaseDamage;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
