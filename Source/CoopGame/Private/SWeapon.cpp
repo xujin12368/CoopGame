@@ -8,6 +8,14 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 
+static int32 DrawDebugWeapon = 0;
+FAutoConsoleVariableRef CVARDrawDebugWeapon(
+	TEXT("COOP.DrawDebugWeapon"), 
+	DrawDebugWeapon, 
+	TEXT("Draw Debug Line For Weapons."), 
+	EConsoleVariableFlags::ECVF_Cheat
+);
+
 // Sets default values
 ASWeapon::ASWeapon()
 {
@@ -67,7 +75,11 @@ void ASWeapon::Fire()
 			}
 			TraceEndPoint = OutHitResult.ImpactPoint;
 		}
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 2.f, 0, 5.f);
+
+		if (DrawDebugWeapon > 0)
+		{
+			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.f, 0, 1.f);
+		}
 
 		if (MuzzleEffect)
 		{
