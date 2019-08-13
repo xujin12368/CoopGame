@@ -10,6 +10,16 @@ ASWeapon_Launcher::ASWeapon_Launcher()
 	SocketName = "MuzzleSocket";
 }
 
+void ASWeapon_Launcher::StartFire()
+{
+	Super::StartFire();
+}
+
+void ASWeapon_Launcher::StopFire()
+{
+	Super::StopFire();
+}
+
 void ASWeapon_Launcher::Fire()
 {
 	AActor* MyOwner = GetOwner();

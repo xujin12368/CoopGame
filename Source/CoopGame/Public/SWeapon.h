@@ -51,11 +51,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShake> FireCamShake;
 
-public:	
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	FTimerHandle TimerHandle_BetweedTowShots;
+
+	// RPM - bullet per min.
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float FireRate;
+
+	float FireRateTime;
+
+	float LastFireTime;
+
+protected:
+	virtual void BeginPlay() override;
+
 	virtual void Fire();
 
-	void PlayImpactEffect(FHitResult OutHitResult);
+public:	
+
+	virtual void StartFire();
+
+	virtual void StopFire();
+
+	void PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult OutHitResult);
 
 	void PlayFireEffect(FVector TraceEndPoint);
 

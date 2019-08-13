@@ -4,5 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#define SURFACETYPE_FLESHDEFAULT SurfaceType1
-#define SURFACETYPE_FLESHHEADSHOT SurfaceType2
+#define SURFACETYPE_FLESHDEFAULT	SurfaceType1
+#define SURFACETYPE_FLESHHEADSHOT	SurfaceType2
+
+#define COLLISION_WEAPON			ECC_GameTraceChannel1

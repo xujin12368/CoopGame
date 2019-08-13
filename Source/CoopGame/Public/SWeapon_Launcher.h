@@ -16,6 +16,10 @@ class COOPGAME_API ASWeapon_Launcher : public ASWeapon
 
 public:
 	ASWeapon_Launcher();
+
+	virtual void StartFire() override;
+
+	virtual void StopFire() override;
 	
 protected:
 

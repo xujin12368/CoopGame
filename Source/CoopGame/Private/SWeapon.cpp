@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "CoopGame.h"
+#include "TimerManager.h"
 
 static int32 DrawDebugWeapon = 0;
 FAutoConsoleVariableRef CVARDrawDebugWeapon(
@@ -29,6 +30,16 @@ ASWeapon::ASWeapon()
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerParameter = "BeamEnd";
+	BaseDamage = 20.f;
+
+	FireRate = 600.f;
+}
+
+void ASWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FireRateTime = 60.f / FireRate;
 }
 
 void ASWeapon::Fire()
@@ -52,12 +63,21 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = true;
-		if (GetWorld()->LineTraceSingleByChannel(OutHitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(OutHitResult, TraceStart, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
+			// Get Physical Surface Material
+			EPhysicalSurface PhysicalSurfaceMat = UPhysicalMaterial::DetermineSurfaceType(OutHitResult.PhysMaterial.Get());
+
+			float ActualDamage = BaseDamage;
+			if (PhysicalSurfaceMat == SURFACETYPE_FLESHHEADSHOT)
+			{
+				ActualDamage *= 4.f;
+			}
+
 			// UGameplayStatics::ApplyDamage(OutHitResult.GetActor(), BaseDamage, MyOwner->GetInstigatorController(), this, DamageType);
 			UGameplayStatics::ApplyPointDamage(
 				OutHitResult.GetActor(), 
-				BaseDamage, 
+				ActualDamage,
 				OutRotation.Vector(), 
 				OutHitResult, 
 				MyOwner->GetInstigatorController(), 
@@ -65,7 +85,7 @@ void ASWeapon::Fire()
 				DamageType
 			);
 
-			PlayImpactEffect(OutHitResult);
+			PlayImpactEffect(PhysicalSurfaceMat, OutHitResult);
 
 			TraceEndPoint = OutHitResult.ImpactPoint;
 		}
@@ -76,14 +96,28 @@ void ASWeapon::Fire()
 		}
 
 		PlayFireEffect(TraceEndPoint);
+
+		LastFireTime = GetWorld()->TimeSeconds;
 	}
 }
 
-void ASWeapon::PlayImpactEffect(FHitResult OutHitResult)
+void ASWeapon::StartFire()
 {
-	// Get Physical Surface Material
-	EPhysicalSurface PhysicalSurfaceMat = UPhysicalMaterial::DetermineSurfaceType(OutHitResult.PhysMaterial.Get());
+	// 此处使用FireRateTIme来约束FireDalay
+	// 解决一直点击造成比自动射击还快的问题
+	// 原理：一直点击的话，LastFireTime - GetWorld()->TimeSeconds == 0
+	// 因此，就会由FireRateTime来控制Delay，所以无论怎么点击间隔都不会超过FireRateTime
+	float FireDelay = FMath::Max(0.f, LastFireTime + FireRateTime - GetWorld()->TimeSeconds);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_BetweedTowShots, this, &ASWeapon::Fire, FireRateTime, true, FireDelay);
+}
 
+void ASWeapon::StopFire()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_BetweedTowShots);
+}
+
+void ASWeapon::PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult OutHitResult)
+{
 	UParticleSystem* SelectedEffect = nullptr;
 	switch (PhysicalSurfaceMat)
 	{
