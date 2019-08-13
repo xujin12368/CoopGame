@@ -40,7 +40,10 @@ protected:
 	UParticleSystem* MuzzleEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	UParticleSystem* ImpactEffect;
+	UParticleSystem* FleshImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* DefaultImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
@@ -51,6 +54,8 @@ protected:
 public:	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire();
+
+	void PlayImpactEffect(FHitResult OutHitResult);
 
 	void PlayFireEffect(FVector TraceEndPoint);
 

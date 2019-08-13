@@ -4,3 +4,5 @@
 
 #include "CoreMinimal.h"
 
+#define SURFACETYPE_FLESHDEFAULT SurfaceType1
+#define SURFACETYPE_FLESHHEADSHOT SurfaceType2

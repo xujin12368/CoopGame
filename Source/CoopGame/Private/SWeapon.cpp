@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "CoopGame.h"
 
 static int32 DrawDebugWeapon = 0;
 FAutoConsoleVariableRef CVARDrawDebugWeapon(
@@ -49,6 +51,7 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(MyOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = true;
 		if (GetWorld()->LineTraceSingleByChannel(OutHitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 		{
 			// UGameplayStatics::ApplyDamage(OutHitResult.GetActor(), BaseDamage, MyOwner->GetInstigatorController(), this, DamageType);
@@ -62,10 +65,8 @@ void ASWeapon::Fire()
 				DamageType
 			);
 
-			if (ImpactEffect)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, OutHitResult.ImpactPoint, OutHitResult.ImpactNormal.Rotation());
-			}
+			PlayImpactEffect(OutHitResult);
+
 			TraceEndPoint = OutHitResult.ImpactPoint;
 		}
 
@@ -75,6 +76,29 @@ void ASWeapon::Fire()
 		}
 
 		PlayFireEffect(TraceEndPoint);
+	}
+}
+
+void ASWeapon::PlayImpactEffect(FHitResult OutHitResult)
+{
+	// Get Physical Surface Material
+	EPhysicalSurface PhysicalSurfaceMat = UPhysicalMaterial::DetermineSurfaceType(OutHitResult.PhysMaterial.Get());
+
+	UParticleSystem* SelectedEffect = nullptr;
+	switch (PhysicalSurfaceMat)
+	{
+	case SURFACETYPE_FLESHDEFAULT:
+	case SURFACETYPE_FLESHHEADSHOT:
+		SelectedEffect = FleshImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+
+	if (SelectedEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, OutHitResult.ImpactPoint, OutHitResult.ImpactNormal.Rotation());
 	}
 }
 
