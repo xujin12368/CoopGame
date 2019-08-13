@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UParticleSystem;
 class UDamageType;
+class UCameraShake;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -43,6 +44,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UCameraShake> FireCamShake;
 
 public:	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
