@@ -98,6 +98,14 @@ void ASCharacter::SpawnWeapon()
 	CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 }
 
+void ASCharacter::ProcessWeaponBullet()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->ProcessWeaponBullet();
+	}
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
@@ -128,6 +136,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::ProcessWeaponBullet);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -138,5 +147,15 @@ FVector ASCharacter::GetPawnViewLocation() const
 	}
 
 	return Super::GetPawnViewLocation();
+}
+
+ASWeapon* ASCharacter::GetCurrentWeapon() const
+{
+	if (CurrentWeapon)
+	{
+		return CurrentWeapon;
+	}
+
+	return nullptr;
 }
 

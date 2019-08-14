@@ -33,6 +33,10 @@ ASWeapon::ASWeapon()
 	BaseDamage = 20.f;
 
 	FireRate = 600.f;
+
+	BulletUpperLimit = 30;
+	CurrentBullet = 30;
+	TotalBullets = 90;
 }
 
 void ASWeapon::BeginPlay()
@@ -44,6 +48,12 @@ void ASWeapon::BeginPlay()
 
 void ASWeapon::Fire()
 {
+	ConsumeBullet();
+	if (!IsCanFire())
+	{
+		return;
+	}
+
 	AActor* MyOwner = GetOwner();
 
 	if (MyOwner)
@@ -97,7 +107,7 @@ void ASWeapon::Fire()
 
 		PlayFireEffect(TraceEndPoint);
 
-		LastFireTime = GetWorld()->TimeSeconds;
+		SetLastFireTime();
 	}
 }
 
@@ -107,13 +117,49 @@ void ASWeapon::StartFire()
 	// 解决一直点击造成比自动射击还快的问题
 	// 原理：一直点击的话，LastFireTime - GetWorld()->TimeSeconds == 0
 	// 因此，就会由FireRateTime来控制Delay，所以无论怎么点击间隔都不会超过FireRateTime
-	float FireDelay = FMath::Max(0.f, LastFireTime + FireRateTime - GetWorld()->TimeSeconds);
+	float FireDelay = FMath::Max<float>(0.f, LastFireTime + FireRateTime - GetWorld()->TimeSeconds);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_BetweedTowShots, this, &ASWeapon::Fire, FireRateTime, true, FireDelay);
 }
 
 void ASWeapon::StopFire()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_BetweedTowShots);
+}
+
+void ASWeapon::SetLastFireTime()
+{
+	LastFireTime = GetWorld()->TimeSeconds;
+}
+
+void ASWeapon::ConsumeBullet()
+{
+	CurrentBullet = FMath::Clamp<int32>(CurrentBullet, 0, --CurrentBullet);
+	if (CurrentBullet == 0)
+	{
+		bCanFire = false;
+	}
+	else
+	{
+		bCanFire = true;
+	}
+}
+
+void ASWeapon::ProcessWeaponBullet()
+{
+	int32 DifferBetweenLimitAndCurrent = BulletUpperLimit - CurrentBullet;
+	if (DifferBetweenLimitAndCurrent > 0 && TotalBullets > 0)
+	{
+		if (TotalBullets <= DifferBetweenLimitAndCurrent)
+		{
+			CurrentBullet += TotalBullets;
+			TotalBullets = 0;
+		}
+		else
+		{
+			CurrentBullet += DifferBetweenLimitAndCurrent;
+			TotalBullets -= DifferBetweenLimitAndCurrent;
+		}
+	}
 }
 
 void ASWeapon::PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult OutHitResult)
@@ -174,5 +220,20 @@ FVector ASWeapon::GetMeshSocketLocationByName(FName SocketName) const
 FRotator ASWeapon::GetMeshSocketRotationByName(FName SocketName) const
 {
 	return WeaponMeshComp->GetSocketRotation(SocketName);
+}
+
+bool ASWeapon::IsCanFire() const
+{
+	return bCanFire;
+}
+
+int32 ASWeapon::GetCurrentBulletNum() const
+{
+	return CurrentBullet;
+}
+
+int32 ASWeapon::GetTotalBulletNum() const
+{
+	return TotalBullets;
 }
 

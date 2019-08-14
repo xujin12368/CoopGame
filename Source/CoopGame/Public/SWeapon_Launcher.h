@@ -20,6 +20,10 @@ public:
 	virtual void StartFire() override;
 
 	virtual void StopFire() override;
+
+	virtual void SetLastFireTime() override;
+
+	virtual void ConsumeBullet() override;
 	
 protected:
 

@@ -61,6 +61,17 @@ protected:
 
 	float LastFireTime;
 
+	bool bCanFire;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	int32 BulletUpperLimit;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,Category = "Weapon")
+	int32 CurrentBullet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,Category = "Weapon")
+	int32 TotalBullets;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -72,6 +83,12 @@ public:
 
 	virtual void StopFire();
 
+	virtual void SetLastFireTime();
+
+	virtual void ConsumeBullet();
+
+	void ProcessWeaponBullet();
+
 	void PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult OutHitResult);
 
 	void PlayFireEffect(FVector TraceEndPoint);
@@ -79,5 +96,13 @@ public:
 	FVector GetMeshSocketLocationByName(FName SocketName) const;
 
 	FRotator GetMeshSocketRotationByName(FName SocketName) const;
+
+	bool IsCanFire() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	int32 GetCurrentBulletNum() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	int32 GetTotalBulletNum() const;
 
 };

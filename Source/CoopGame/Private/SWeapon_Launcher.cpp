@@ -20,8 +20,24 @@ void ASWeapon_Launcher::StopFire()
 	Super::StopFire();
 }
 
+void ASWeapon_Launcher::SetLastFireTime()
+{
+	Super::SetLastFireTime();
+}
+
+void ASWeapon_Launcher::ConsumeBullet()
+{
+	Super::ConsumeBullet();
+}
+
 void ASWeapon_Launcher::Fire()
 {
+	ConsumeBullet();
+	if (!IsCanFire())
+	{
+		return;
+	}
+
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
@@ -35,8 +51,11 @@ void ASWeapon_Launcher::Fire()
 				GetMeshSocketLocationByName(SocketName),
 				EyeRotation
 				);
-
+			ProjectileBP->SetOwner(this);
 			ProjectileBP->InitialLifeSpan = 5.f;
 		}
 	}
+
+	SetLastFireTime();
+
 }

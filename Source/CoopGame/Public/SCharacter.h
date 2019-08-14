@@ -41,6 +41,8 @@ protected:
 
 	void SpawnWeapon();
 
+	void ProcessWeaponBullet();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
@@ -74,5 +76,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASWeapon* GetCurrentWeapon() const;
 
 };
