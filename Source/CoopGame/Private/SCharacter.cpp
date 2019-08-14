@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "SWeapon.h"
 #include "CoopGame.h"
+#include "Components/SHealthComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -23,6 +24,8 @@ ASCharacter::ASCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true; // 将角色的下蹲设置为true，否则不能执行下蹲函数
 
 	//因为胶囊体的碰撞挡住了角色Mesh的碰撞所以要将这一层忽略
@@ -32,6 +35,8 @@ ASCharacter::ASCharacter()
 	ZoomFOV = 65.f;
 	ZoomInterpSpeed = 20.f;
 	WeaponSocketName = "WeaponSocket";
+
+	bDied = false;
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +45,11 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	SpawnWeapon();
+
+	if (HealthComp)
+	{
+		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
+	}
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -162,5 +172,21 @@ ASWeapon* ASCharacter::GetCurrentWeapon() const
 	}
 
 	return nullptr;
+}
+
+void ASCharacter::OnHealthChange(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Health <= 0 && !bDied)
+	{
+		// Died
+		bDied = true;
+
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		DetachFromControllerPendingDestroy();
+
+		SetLifeSpan(10.f);
+	}
 }
 
