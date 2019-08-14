@@ -133,7 +133,7 @@ void ASWeapon::SetLastFireTime()
 
 void ASWeapon::ConsumeBullet()
 {
-	CurrentBullet = FMath::Clamp<int32>(CurrentBullet, 0, --CurrentBullet);
+	CurrentBullet = FMath::Clamp<int32>(--CurrentBullet, 0, BulletUpperLimit);
 	if (CurrentBullet == 0)
 	{
 		bCanFire = false;

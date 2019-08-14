@@ -20,30 +20,6 @@ public:
 	ASCharacter();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	void MoveForward(float Value);
-
-	void MoveRight(float Value);
-
-	void BeginCrouch();
-
-	void EndCrouch();
-
-	void BeginZoom();
-
-	void EndZoom();
-
-	void StartFire();
-
-	void StopFire();
-
-	void SpawnWeapon();
-
-	void ProcessWeaponBullet();
-
-protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
 
@@ -67,6 +43,30 @@ protected:
 	FName WeaponSocketName;
 
 	ASWeapon* CurrentWeapon;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	void MoveForward(float Value);
+
+	void MoveRight(float Value);
+
+	void BeginCrouch();
+
+	void EndCrouch();
+
+	void BeginZoom();
+
+	void EndZoom();
+
+	void StartFire();
+
+	void StopFire();
+
+	void SpawnWeapon();
+
+	void ProcessWeaponBullet();
 
 public:	
 	// Called every frame
