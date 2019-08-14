@@ -6,7 +6,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "SWeapon.h"
+#include "CoopGame.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -22,6 +24,9 @@ ASCharacter::ASCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true; // 将角色的下蹲设置为true，否则不能执行下蹲函数
+
+	//因为胶囊体的碰撞挡住了角色Mesh的碰撞所以要将这一层忽略
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	DefaultZoomFOV = CameraComp->FieldOfView;
 	ZoomFOV = 65.f;
