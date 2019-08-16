@@ -10,6 +10,7 @@
 #include "SWeapon.h"
 #include "CoopGame.h"
 #include "Components/SHealthComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -43,12 +44,15 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	SpawnWeapon();
 
 	if (HealthComp)
 	{
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
+	}
+	
+	if (Role == ROLE_Authority)
+	{
+		SpawnWeapon();
 	}
 }
 
@@ -188,5 +192,12 @@ void ASCharacter::OnHealthChange(USHealthComponent* HealthComp, int32 Health, fl
 
 		SetLifeSpan(10.f);
 	}
+}
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);
 }
 

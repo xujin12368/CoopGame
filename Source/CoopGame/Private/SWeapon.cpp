@@ -37,6 +37,8 @@ ASWeapon::ASWeapon()
 	BulletUpperLimit = 30;
 	CurrentBullet = 30;
 	TotalBullets = 90;
+
+	SetReplicates(true);
 }
 
 void ASWeapon::BeginPlay()
