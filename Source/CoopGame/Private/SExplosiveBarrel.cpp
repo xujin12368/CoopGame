@@ -22,7 +22,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	// MeshComp->SetIsReplicated(true); // 可同步物理移动，但是延迟太高了
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	SphereComp->SetupAttachment(RootComponent);
+	SphereComp->SetupAttachment(MeshComp);
 	SphereComp->SetSphereRadius(300.f);
 	SphereComp->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
@@ -32,8 +32,6 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialStrength = 10000.f;
 
 	bDestroyed = false;
-
-	bCanExplosive = false;
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -66,9 +64,7 @@ void ASExplosiveBarrel::HandleChangedHealth(USHealthComponent* HealthComp, int32
 	{
 		bDestroyed = true;
 
-		bCanExplosive = true;
-
-		ExplosiveToSelf();
+		OnRep_Explosive();
 	}
 }
 
@@ -96,7 +92,7 @@ void ASExplosiveBarrel::ExplosiveToOtherActors()
 	}
 }
 
-void ASExplosiveBarrel::ExplosiveToSelf()
+void ASExplosiveBarrel::OnRep_Explosive()
 {
 	MeshComp->AddImpulse(GetActorLocation().UpVector * ImpuseStrength, NAME_None, true);
 
@@ -116,16 +112,6 @@ void ASExplosiveBarrel::Tick(float DeltaTime)
 		return;
 	}
 
-	if (bCanExplosive)
-	{
-		if (Role < ROLE_Authority)
-		{
-			ExplosiveToSelf();
-
-			bCanExplosive = false;
-		}
-	}
-
 	if (ChangeMaterial)
 	{
 		MeshComp->SetMaterial(0, ChangeMaterial);
@@ -140,7 +126,5 @@ void ASExplosiveBarrel::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASExplosiveBarrel, bDestroyed);
-
-	DOREPLIFETIME(ASExplosiveBarrel, bCanExplosive);
 
 }
