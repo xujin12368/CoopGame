@@ -50,6 +50,11 @@ void ASWeapon::BeginPlay()
 
 void ASWeapon::Fire()
 {
+	if (Role < ROLE_Authority)
+	{
+		ServerFire();
+	}
+
 	ConsumeBullet();
 	if (!IsCanFire())
 	{
@@ -111,6 +116,16 @@ void ASWeapon::Fire()
 
 		SetLastFireTime();
 	}
+}
+
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASWeapon::ServerFire_Validate()
+{
+	return true;
 }
 
 void ASWeapon::StartFire()

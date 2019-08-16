@@ -77,6 +77,9 @@ protected:
 
 	virtual void Fire();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+
 public:	
 
 	virtual void StartFire();
