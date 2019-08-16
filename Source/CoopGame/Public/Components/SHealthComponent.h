@@ -18,7 +18,7 @@ public:
 	USHealthComponent();
 
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Health")
 	int32 Health;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
