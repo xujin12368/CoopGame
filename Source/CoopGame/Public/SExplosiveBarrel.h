@@ -46,7 +46,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AActor> MyClassFilter;
 
+	UPROPERTY(Replicated)
 	bool bDestroyed;
+
+	UPROPERTY(Replicated)
+	bool bCanExplosive;
 
 protected:
 	// Called when the game starts or when spawned
@@ -54,8 +58,10 @@ protected:
 
 	void ExplosiveToOtherActors();
 
+	void ExplosiveToSelf();
+
 	UFUNCTION()
-	void ExplosiveToSelf(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void HandleChangedHealth(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame
