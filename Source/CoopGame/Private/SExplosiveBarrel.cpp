@@ -19,13 +19,12 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 	MeshComp->SetSimulatePhysics(true);
-	MeshComp->SetIsReplicated(true); // 可同步物理移动
+	// MeshComp->SetIsReplicated(true); // 可同步物理移动，但是延迟太高了
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SphereComp->SetupAttachment(RootComponent);
 	SphereComp->SetSphereRadius(300.f);
 	SphereComp->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
-	SphereComp->SetIsReplicated(true); // 同步物理
 
 	MyHealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("MyHealthComp"));
 
@@ -37,6 +36,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	bCanExplosive = false;
 
 	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
