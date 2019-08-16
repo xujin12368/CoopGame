@@ -10,6 +10,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "CoopGame.h"
 #include "TimerManager.h"
+#include "Net/UnrealNetwork.h"
 
 static int32 DrawDebugWeapon = 0;
 FAutoConsoleVariableRef CVARDrawDebugWeapon(
@@ -39,6 +40,9 @@ ASWeapon::ASWeapon()
 	TotalBullets = 90;
 
 	SetReplicates(true);
+
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 void ASWeapon::BeginPlay()
@@ -58,6 +62,7 @@ void ASWeapon::Fire()
 	ConsumeBullet();
 	if (!IsCanFire())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("No Bullet Or No Replication."));
 		return;
 	}
 
@@ -74,6 +79,8 @@ void ASWeapon::Fire()
 		TraceEnd = TraceStart + OutRotation.Vector() * 10000;
 
 		FVector TraceEndPoint = TraceEnd;
+
+		EPhysicalSurface PhysicalSurfaceMat = EPhysicalSurface::SurfaceType_Default;
 		
 		FCollisionQueryParams QueryParams = new FCollisionQueryParams();
 		QueryParams.AddIgnoredActor(MyOwner);
@@ -83,7 +90,7 @@ void ASWeapon::Fire()
 		if (GetWorld()->LineTraceSingleByChannel(OutHitResult, TraceStart, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			// Get Physical Surface Material
-			EPhysicalSurface PhysicalSurfaceMat = UPhysicalMaterial::DetermineSurfaceType(OutHitResult.PhysMaterial.Get());
+			PhysicalSurfaceMat = UPhysicalMaterial::DetermineSurfaceType(OutHitResult.PhysMaterial.Get());
 
 			float ActualDamage = BaseDamage;
 			if (PhysicalSurfaceMat == SURFACETYPE_FLESHHEADSHOT)
@@ -102,7 +109,7 @@ void ASWeapon::Fire()
 				DamageType
 			);
 
-			PlayImpactEffect(PhysicalSurfaceMat, OutHitResult);
+			PlayImpactEffect(PhysicalSurfaceMat, OutHitResult.ImpactPoint);
 
 			TraceEndPoint = OutHitResult.ImpactPoint;
 		}
@@ -114,8 +121,22 @@ void ASWeapon::Fire()
 
 		PlayFireEffect(TraceEndPoint);
 
+		if (Role == ROLE_Authority)
+		{
+			HitScanTrace.TraceEnd = TraceEndPoint;
+
+			HitScanTrace.Surface = PhysicalSurfaceMat;
+		}
+
 		SetLastFireTime();
 	}
+}
+
+void ASWeapon::OnRep_HitScanTrace()
+{
+	PlayFireEffect(HitScanTrace.TraceEnd);
+
+	PlayImpactEffect(HitScanTrace.Surface, HitScanTrace.TraceEnd);
 }
 
 void ASWeapon::ServerFire_Implementation()
@@ -179,7 +200,7 @@ void ASWeapon::ProcessWeaponBullet()
 	}
 }
 
-void ASWeapon::PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult OutHitResult)
+void ASWeapon::PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FVector ImpactPoint)
 {
 	UParticleSystem* SelectedEffect = nullptr;
 	switch (PhysicalSurfaceMat)
@@ -195,7 +216,11 @@ void ASWeapon::PlayImpactEffect(EPhysicalSurface PhysicalSurfaceMat, FHitResult 
 
 	if (SelectedEffect)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, OutHitResult.ImpactPoint, OutHitResult.ImpactNormal.Rotation());
+		FVector MuzzleLocation = WeaponMeshComp->GetSocketLocation(MuzzleSocketName);
+		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		ShotDirection.Normalize();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
 	}
 }
 
@@ -254,3 +279,11 @@ int32 ASWeapon::GetTotalBulletNum() const
 	return TotalBullets;
 }
 
+void ASWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 跳过拥有武器的，防止运行两次相关代码
+	DOREPLIFETIME_CONDITION(ASWeapon, HitScanTrace, COND_SkipOwner);
+
+}
