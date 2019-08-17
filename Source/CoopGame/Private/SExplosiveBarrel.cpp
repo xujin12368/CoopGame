@@ -19,6 +19,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 	MeshComp->SetSimulatePhysics(true);
+	MeshComp->SetCanEverAffectNavigation(false);
 	// MeshComp->SetIsReplicated(true); // 可同步物理移动，但是延迟太高了
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
