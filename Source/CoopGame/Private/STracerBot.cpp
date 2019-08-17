@@ -59,6 +59,14 @@ void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 He
 	// @TODO: Explosive when died.
 
 	// @TODO: Bling bling when attacked.
+	if (MatInstance == nullptr)
+	{
+		MatInstance = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+	}
+	else
+	{
+		MatInstance->SetScalarParameterValue("LastTimeShot", GetWorld()->TimeSeconds);
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("%s's Health is : %s"), *GetName(), *FString::FromInt(Health));
 }
