@@ -20,6 +20,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TracerBot")
+	float RequiredDistanceToPathPoint;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TracerBot")
+	float ForceStrength;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TracerBot")
+	bool bAccelChange;
+
+	FVector NextPathPoint;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
