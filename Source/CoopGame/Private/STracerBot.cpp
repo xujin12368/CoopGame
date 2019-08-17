@@ -8,6 +8,7 @@
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "DrawDebugHelpers.h"
+#include "Components/SHealthComponent.h"
 
 // Sets default values
 ASTracerBot::ASTracerBot()
@@ -19,6 +20,9 @@ ASTracerBot::ASTracerBot()
 	MeshComp->SetCanEverAffectNavigation(false);
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
+
+	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASTracerBot::HandleTakeDamage);
 
 	RequiredDistanceToPathPoint = 100.f;
 	ForceStrength = 500.f;
@@ -48,6 +52,15 @@ FVector ASTracerBot::GetNextMovePathPoint()
 	}
 
 	return GetActorLocation();
+}
+
+void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	// @TODO: Explosive when died.
+
+	// @TODO: Bling bling when attacked.
+
+	UE_LOG(LogTemp, Warning, TEXT("%s's Health is : %s"), *GetName(), *FString::FromInt(Health));
 }
 
 // Called every frame

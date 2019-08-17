@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "STracerBot.generated.h"
 
+class USHealthComponent;
+
 UCLASS()
 class COOPGAME_API ASTracerBot : public APawn
 {
@@ -19,6 +21,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USHealthComponent* HealthComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TracerBot")
 	float RequiredDistanceToPathPoint;
@@ -36,6 +41,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	FVector GetNextMovePathPoint();
+
+	UFUNCTION()
+	void HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame
