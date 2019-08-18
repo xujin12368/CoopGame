@@ -44,6 +44,8 @@ protected:
 
 	UMaterialInstanceDynamic* MatInstance;
 
+	UMaterialInstanceDynamic* MatPartnerInstance;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	UParticleSystem* ExplosionEffect;
 
@@ -58,6 +60,8 @@ protected:
 
 	FTimerHandle TimerHandle_DamageSelf;
 
+	FTimerHandle TimerHandle_ScanPartner;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	USoundCue* ExplosionSound;
 
@@ -66,11 +70,21 @@ protected:
 
 	bool bExplosionSelf;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<AActor> PartnerClassFilter;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	int32 MyMaxPowerLevel;
+
+	int32 MyPowerLevel;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	FVector GetNextMovePathPoint();
+
+	void ScanOtherPartners();
 
 	void SelfDestruct();
 

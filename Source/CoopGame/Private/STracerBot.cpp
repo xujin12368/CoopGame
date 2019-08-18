@@ -31,6 +31,9 @@ ASTracerBot::ASTracerBot()
 
 	bExplosionSelf = false;
 
+	MyMaxPowerLevel = 10;
+	MyPowerLevel = 0;
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCanEverAffectNavigation(false);
 	MeshComp->SetSimulatePhysics(true);
@@ -55,6 +58,8 @@ void ASTracerBot::BeginPlay()
 	{
 		NextPathPoint = GetNextMovePathPoint();
 	}
+
+	GetWorldTimerManager().SetTimer(TimerHandle_ScanPartner, this, &ASTracerBot::ScanOtherPartners, 1.f, true, 0.f);
 }
 
 FVector ASTracerBot::GetNextMovePathPoint()
@@ -70,6 +75,50 @@ FVector ASTracerBot::GetNextMovePathPoint()
 	}
 
 	return GetActorLocation();
+}
+
+void ASTracerBot::ScanOtherPartners()
+{
+	// Scan partner around and save PowerLevel.
+	if (PartnerClassFilter)
+	{
+		TArray<AActor*> OverlappingActors;
+		SphereComp->GetOverlappingActors(OverlappingActors, PartnerClassFilter);
+		int32 NumOfPartners = OverlappingActors.Num();
+		if (NumOfPartners > 0)
+		{
+			for (auto OverlappingActor : OverlappingActors)
+			{
+				ASTracerBot* MyPartner = Cast<ASTracerBot>(OverlappingActor);
+				if (MyPartner && MyPartner!=this && MyPowerLevel < NumOfPartners)
+				{
+					MyPowerLevel++;
+				}
+				else if (MyPartner && MyPartner != this && MyPowerLevel > NumOfPartners)
+				{
+					MyPowerLevel -= (MyPowerLevel - NumOfPartners);
+				}
+			}
+		}
+		else
+		{
+			MyPowerLevel = 0;
+		}
+
+		// Set Parameter of material to bling.
+		float MatAlpha = (float)MyPowerLevel / (float)MyMaxPowerLevel;
+
+		if (MatPartnerInstance == nullptr)
+		{
+			MatPartnerInstance = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+		}
+		else
+		{
+			MatPartnerInstance->SetScalarParameterValue("PowerLevelAlpha", MatAlpha);
+
+			UE_LOG(LogTemp, Warning, TEXT("%s Alpha: %s"), *GetName(), *FString::SanitizeFloat(MatAlpha));
+		}
+	}
 }
 
 void ASTracerBot::SelfDestruct()
@@ -184,6 +233,7 @@ void ASTracerBot::Tick(float DeltaTime)
 			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
 		}
 	}
+
 
 }
 
