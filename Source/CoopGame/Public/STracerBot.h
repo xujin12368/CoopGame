@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "STracerBot.generated.h"
 
+class UStaticMeshComponent;
+class USphereComponent;
 class USHealthComponent;
 
 UCLASS()
@@ -21,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USphereComponent* SphereComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USHealthComponent* HealthComp;
@@ -47,6 +52,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float ExplosionRadius;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<AActor> ToExplosiveClassFilter;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,6 +62,8 @@ protected:
 	FVector GetNextMovePathPoint();
 
 	void SelfDestruct();
+
+	void ToPlayerDestruct();
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

@@ -32,6 +32,8 @@ ASCharacter::ASCharacter()
 	//因为胶囊体的碰撞挡住了角色Mesh的碰撞所以要将这一层忽略
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
+	GetMesh()->SetGenerateOverlapEvents(true);
+
 	DefaultZoomFOV = CameraComp->FieldOfView;
 	ZoomFOV = 65.f;
 	ZoomInterpSpeed = 20.f;

@@ -9,20 +9,14 @@
 #include "NavigationPath.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SHealthComponent.h"
+#include "Components/SphereComponent.h"
+#include "CoopGame.h"
 
 // Sets default values
 ASTracerBot::ASTracerBot()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetCanEverAffectNavigation(false);
-	MeshComp->SetSimulatePhysics(true);
-	RootComponent = MeshComp;
-
-	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
-	HealthComp->OnHealthChanged.AddDynamic(this, &ASTracerBot::HandleTakeDamage);
 
 	RequiredDistanceToPathPoint = 100.f;
 	ForceStrength = 500.f;
@@ -32,6 +26,18 @@ ASTracerBot::ASTracerBot()
 	ExplosionDamage = 50.f;
 	ExplosionRadius = 100.f;
 
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetCanEverAffectNavigation(false);
+	MeshComp->SetSimulatePhysics(true);
+	RootComponent = MeshComp;
+
+	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	SphereComp->SetupAttachment(RootComponent);
+	SphereComp->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+	SphereComp->SetSphereRadius(ExplosionRadius);
+
+	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASTracerBot::HandleTakeDamage);
 }
 
 // Called when the game starts or when spawned
@@ -81,6 +87,19 @@ void ASTracerBot::SelfDestruct()
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
 }
 
+void ASTracerBot::ToPlayerDestruct()
+{
+	TArray<AActor*> OverlappingActors;
+	if (ToExplosiveClassFilter)
+	{
+		SphereComp->GetOverlappingActors(OverlappingActors, ToExplosiveClassFilter);
+		if (OverlappingActors.Num() > 0)
+		{
+			SelfDestruct();
+		}
+	}
+}
+
 void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 	
@@ -122,5 +141,7 @@ void ASTracerBot::Tick(float DeltaTime)
 
 		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
 	}
+
+	ToPlayerDestruct();
 }
 
