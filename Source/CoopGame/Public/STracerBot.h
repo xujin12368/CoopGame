@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class USphereComponent;
 class USHealthComponent;
+class USoundCue;
 
 UCLASS()
 class COOPGAME_API ASTracerBot : public APawn
@@ -56,6 +57,12 @@ protected:
 	float DamageSelfRate;
 
 	FTimerHandle TimerHandle_DamageSelf;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	USoundCue* ExplosionSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	USoundCue* ReadyToExplovieSound;
 
 protected:
 	// Called when the game starts or when spawned

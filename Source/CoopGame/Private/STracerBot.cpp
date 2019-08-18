@@ -12,6 +12,7 @@
 #include "Components/SphereComponent.h"
 #include "CoopGame.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ASTracerBot::ASTracerBot()
@@ -85,6 +86,8 @@ void ASTracerBot::SelfDestruct()
 		ECC_Visibility
 	);
 
+	UGameplayStatics::SpawnSoundAtLocation(this, ExplosionSound, GetActorLocation());
+
 	Destroy();
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
@@ -100,6 +103,8 @@ void ASTracerBot::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	ACharacter* PlayerPawn = Cast<ACharacter>(OtherActor);
 	if (PlayerPawn)
 	{
+		UGameplayStatics::SpawnSoundAttached(ReadyToExplovieSound, RootComponent);
+
 		GetWorldTimerManager().SetTimer(TimerHandle_DamageSelf, this, &ASTracerBot::DamageSelf, DamageSelfRate, true, 0.f);
 	}
 }
