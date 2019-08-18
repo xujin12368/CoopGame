@@ -18,7 +18,7 @@ public:
 	USHealthComponent();
 
 protected:
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(ReplicatedUsing = OnRep_Health, BlueprintReadOnly, Category = "Health")
 	int32 Health;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
@@ -27,6 +27,10 @@ protected:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	// 为了让客户端也能够调用OnHealthChanged事件
+	UFUNCTION()
+	void OnRep_Health(int32 OldHealth);
 
 	UFUNCTION()
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

@@ -17,7 +17,7 @@
 // Sets default values
 ASTracerBot::ASTracerBot()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	RequiredDistanceToPathPoint = 100.f;
@@ -28,6 +28,8 @@ ASTracerBot::ASTracerBot()
 	ExplosionDamage = 50.f;
 	ExplosionRadius = 100.f;
 	DamageSelfRate = 1.f;
+
+	bExplosionSelf = false;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCanEverAffectNavigation(false);
@@ -48,14 +50,17 @@ ASTracerBot::ASTracerBot()
 void ASTracerBot::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	NextPathPoint = GetNextMovePathPoint();
+
+	if (Role == ROLE_Authority)
+	{
+		NextPathPoint = GetNextMovePathPoint();
+	}
 }
 
 FVector ASTracerBot::GetNextMovePathPoint()
 {
 	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
-	
+
 	// 放在Tick里面，每次都是新的ActorLocation，所以每次Tick都会向着前方的PathPoint行进
 	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
 
@@ -69,43 +74,70 @@ FVector ASTracerBot::GetNextMovePathPoint()
 
 void ASTracerBot::SelfDestruct()
 {
+	if (bExplosionSelf)
+	{
+		return;
+	}
+	// 客户端上看不到特效
+	// 原因：服务器立即摧毁了TracerBot，导致未同步到客户端
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
-
-	TArray<AActor*> IgnoreActors;
-	IgnoreActors.Add(this);
-	UGameplayStatics::ApplyRadialDamage(
-		this, 
-		ExplosionDamage, 
-		GetActorLocation(), 
-		ExplosionRadius, 
-		nullptr, 
-		IgnoreActors, 
-		this, 
-		GetInstigatorController(), 
-		true, 
-		ECC_Visibility
-	);
 
 	UGameplayStatics::SpawnSoundAtLocation(this, ExplosionSound, GetActorLocation());
 
-	Destroy();
+	// 为了同步2.f的销毁时间，设置Bot为不可见以及取消碰撞
+	MeshComp->SetVisibility(false, true);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+	bExplosionSelf = true;
+
+	// ApplyDamage放在Server上运行
+	if (Role == ROLE_Authority)
+	{
+		TArray<AActor*> IgnoreActors;
+		IgnoreActors.Add(this);
+		UGameplayStatics::ApplyRadialDamage(
+			this,
+			ExplosionDamage,
+			GetActorLocation(),
+			ExplosionRadius,
+			nullptr,
+			IgnoreActors,
+			this,
+			GetInstigatorController(),
+			true,
+			ECC_Visibility
+		);
+
+		// Destroy(); // 不使用立即摧毁，而是使用SetLifeSpan()
+		// 延迟摧毁让客户端能够看到特效。
+
+		SetLifeSpan(2.f);
+
+		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+	}
 }
 
 void ASTracerBot::DamageSelf()
 {
-	UGameplayStatics::ApplyDamage(this, 20.f, GetInstigatorController(), this, nullptr);
+	if (!bExplosionSelf)
+	{
+		UGameplayStatics::ApplyDamage(this, 20.f, GetInstigatorController(), this, nullptr);
+	}
 }
 
 void ASTracerBot::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	ACharacter* PlayerPawn = Cast<ACharacter>(OtherActor);
-	if (PlayerPawn)
+	if (!bExplosionSelf && PlayerPawn)
 	{
 		UGameplayStatics::SpawnSoundAttached(ReadyToExplovieSound, RootComponent);
 
-		GetWorldTimerManager().SetTimer(TimerHandle_DamageSelf, this, &ASTracerBot::DamageSelf, DamageSelfRate, true, 0.f);
+		// 定时器放在Server上运行
+		if (Role == ROLE_Authority)
+		{
+			GetWorldTimerManager().SetTimer(TimerHandle_DamageSelf, this, &ASTracerBot::DamageSelf, DamageSelfRate, true, 0.f);
+		}
 	}
 }
 
@@ -134,19 +166,24 @@ void ASTracerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistanceToPathPoint = (NextPathPoint - GetActorLocation()).Size();
-	if (DistanceToPathPoint <= RequiredDistanceToPathPoint)
+	// 为了同步客户端的2.f，设置为当自爆函数执行，不再寻路
+	if (Role == ROLE_Authority && !bExplosionSelf)
 	{
-		NextPathPoint = GetNextMovePathPoint();
-	}
-	else
-	{
-		FVector MoveDirection = NextPathPoint - GetActorLocation();
-		MoveDirection.Normalize();
+		float DistanceToPathPoint = (NextPathPoint - GetActorLocation()).Size();
+		if (DistanceToPathPoint <= RequiredDistanceToPathPoint)
+		{
+			NextPathPoint = GetNextMovePathPoint();
+		}
+		else
+		{
+			FVector MoveDirection = NextPathPoint - GetActorLocation();
+			MoveDirection.Normalize();
 
-		MeshComp->AddForce(MoveDirection * ForceStrength, NAME_None, bAccelChange);
+			MeshComp->AddForce(MoveDirection * ForceStrength, NAME_None, bAccelChange);
 
-		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
+			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
+		}
 	}
+
 }
 

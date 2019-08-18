@@ -64,6 +64,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	USoundCue* ReadyToExplovieSound;
 
+	bool bExplosionSelf;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
