@@ -11,6 +11,7 @@
 #include "Components/SHealthComponent.h"
 #include "Components/SphereComponent.h"
 #include "CoopGame.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASTracerBot::ASTracerBot()
@@ -25,6 +26,7 @@ ASTracerBot::ASTracerBot()
 
 	ExplosionDamage = 50.f;
 	ExplosionRadius = 100.f;
+	DamageSelfRate = 1.f;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCanEverAffectNavigation(false);
@@ -35,6 +37,7 @@ ASTracerBot::ASTracerBot()
 	SphereComp->SetupAttachment(RootComponent);
 	SphereComp->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 	SphereComp->SetSphereRadius(ExplosionRadius);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASTracerBot::HandleSphereOverlap);
 
 	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASTracerBot::HandleTakeDamage);
@@ -87,23 +90,22 @@ void ASTracerBot::SelfDestruct()
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
 }
 
-void ASTracerBot::ToPlayerDestruct()
+void ASTracerBot::DamageSelf()
 {
-	TArray<AActor*> OverlappingActors;
-	if (ToExplosiveClassFilter)
+	UGameplayStatics::ApplyDamage(this, 20.f, GetInstigatorController(), this, nullptr);
+}
+
+void ASTracerBot::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	ACharacter* PlayerPawn = Cast<ACharacter>(OtherActor);
+	if (PlayerPawn)
 	{
-		SphereComp->GetOverlappingActors(OverlappingActors, ToExplosiveClassFilter);
-		if (OverlappingActors.Num() > 0)
-		{
-			SelfDestruct();
-		}
+		GetWorldTimerManager().SetTimer(TimerHandle_DamageSelf, this, &ASTracerBot::DamageSelf, DamageSelfRate, true, 0.f);
 	}
 }
 
 void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	
-
 	if (MatInstance == nullptr)
 	{
 		MatInstance = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
@@ -141,7 +143,5 @@ void ASTracerBot::Tick(float DeltaTime)
 
 		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
 	}
-
-	ToPlayerDestruct();
 }
 

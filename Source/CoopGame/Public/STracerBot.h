@@ -53,7 +53,9 @@ protected:
 	float ExplosionRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	TSubclassOf<AActor> ToExplosiveClassFilter;
+	float DamageSelfRate;
+
+	FTimerHandle TimerHandle_DamageSelf;
 
 protected:
 	// Called when the game starts or when spawned
@@ -63,7 +65,10 @@ protected:
 
 	void SelfDestruct();
 
-	void ToPlayerDestruct();
+	void DamageSelf();
+
+	UFUNCTION()
+	void HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
