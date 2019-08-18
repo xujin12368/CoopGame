@@ -38,11 +38,22 @@ protected:
 
 	UMaterialInstanceDynamic* MatInstance;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ExplosionDamage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ExplosionRadius;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	FVector GetNextMovePathPoint();
+
+	void SelfDestruct();
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

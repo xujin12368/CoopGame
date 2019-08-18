@@ -29,6 +29,9 @@ ASTracerBot::ASTracerBot()
 
 	bAccelChange = false;
 
+	ExplosionDamage = 50.f;
+	ExplosionRadius = 100.f;
+
 }
 
 // Called when the game starts or when spawned
@@ -54,11 +57,34 @@ FVector ASTracerBot::GetNextMovePathPoint()
 	return GetActorLocation();
 }
 
+void ASTracerBot::SelfDestruct()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+	UGameplayStatics::ApplyRadialDamage(
+		this, 
+		ExplosionDamage, 
+		GetActorLocation(), 
+		ExplosionRadius, 
+		nullptr, 
+		IgnoreActors, 
+		this, 
+		GetInstigatorController(), 
+		true, 
+		ECC_Visibility
+	);
+
+	Destroy();
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+}
+
 void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	// @TODO: Explosive when died.
+	
 
-	// @TODO: Bling bling when attacked.
 	if (MatInstance == nullptr)
 	{
 		MatInstance = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
@@ -69,6 +95,12 @@ void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 He
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("%s's Health is : %s"), *GetName(), *FString::FromInt(Health));
+
+	// Explosive when died.
+	if (Health <= 0)
+	{
+		SelfDestruct();
+	}
 }
 
 // Called every frame
