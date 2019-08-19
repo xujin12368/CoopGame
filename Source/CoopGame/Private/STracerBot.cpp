@@ -85,7 +85,9 @@ void ASTracerBot::ScanOtherPartners()
 		TArray<AActor*> OverlappingActors;
 		SphereComp->GetOverlappingActors(OverlappingActors, PartnerClassFilter);
 		int32 NumOfPartners = OverlappingActors.Num();
-		if (NumOfPartners > 0)
+
+		// 因为包含了自己this，所以判断条件不能为0
+		if (NumOfPartners > 1)
 		{
 			for (auto OverlappingActor : OverlappingActors)
 			{
@@ -107,6 +109,7 @@ void ASTracerBot::ScanOtherPartners()
 
 		// Set Parameter of material to bling.
 		float MatAlpha = (float)MyPowerLevel / (float)MyMaxPowerLevel;
+		ExplosionDamage *= (1 + MatAlpha);
 
 		if (MatPartnerInstance == nullptr)
 		{
@@ -135,6 +138,7 @@ void ASTracerBot::SelfDestruct()
 
 	// 为了同步2.f的销毁时间，设置Bot为不可见以及取消碰撞
 	MeshComp->SetVisibility(false, true);
+	MeshComp->SetSimulatePhysics(false);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
