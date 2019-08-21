@@ -4,6 +4,7 @@
 #include "SPowerUpActor.h"
 #include "TimerManager.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
 
 // Sets default values
 ASPowerUpActor::ASPowerUpActor()
@@ -20,6 +21,9 @@ ASPowerUpActor::ASPowerUpActor()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RotatingMovementComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementComp"));
+	RotatingMovementComp->RotationRate = FRotator(0.f, 180.f, 0.f);
 
 }
 

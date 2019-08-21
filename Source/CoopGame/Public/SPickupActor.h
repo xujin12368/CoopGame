@@ -26,7 +26,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UDecalComponent* DecalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	// 因为要设置不同的Power，所以必须设置为EditInstanceOnly
+	UPROPERTY(EditInstanceOnly, Category = "Pickups")
 	TSubclassOf<ASPowerUpActor> PowerUpActorClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")

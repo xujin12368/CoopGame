@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class USceneComponent;
+class URotatingMovementComponent;
 
 UCLASS()
 class COOPGAME_API ASPowerUpActor : public AActor
@@ -24,6 +25,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	URotatingMovementComponent* RotatingMovementComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	float PickInterval;
