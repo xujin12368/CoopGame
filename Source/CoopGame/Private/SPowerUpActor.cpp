@@ -40,6 +40,8 @@ void ASPowerUpActor::OnTickPowerUp()
 		OnExpired();
 
 		GetWorldTimerManager().ClearTimer(TimerHandle_Pickup);
+
+		Destroy();
 	}
 }
 
@@ -53,6 +55,8 @@ void ASPowerUpActor::ActivatePowerUp()
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Your PickInterval is less than 0.f, So It only can exist once."));
+		TotalNumOfTick = 1;
 		OnTickPowerUp();
 	}
 }
