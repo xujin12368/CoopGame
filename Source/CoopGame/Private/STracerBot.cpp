@@ -118,8 +118,6 @@ void ASTracerBot::ScanOtherPartners()
 		else
 		{
 			MatPartnerInstance->SetScalarParameterValue("PowerLevelAlpha", MatAlpha);
-
-			UE_LOG(LogTemp, Warning, TEXT("%s Alpha: %s"), *GetName(), *FString::SanitizeFloat(MatAlpha));
 		}
 	}
 }
@@ -204,8 +202,6 @@ void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 He
 	{
 		MatInstance->SetScalarParameterValue("LastTimeShot", GetWorld()->TimeSeconds);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("%s's Health is : %s"), *GetName(), *FString::FromInt(Health));
 
 	// Explosive when died.
 	if (Health <= 0)

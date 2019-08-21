@@ -39,6 +39,7 @@ void ASPickupActor::Respawn()
 	{
 		FActorSpawnParameters ActorSpawnParas;
 		ActorSpawnParas.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 		PowerUpInstance = GetWorld()->SpawnActor<ASPowerUpActor>(PowerUpActorClass, GetActorTransform(), ActorSpawnParas);
 	}
 }
@@ -55,10 +56,15 @@ void ASPickupActor::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent
 			// Destroy的话，就没有后续的函数运行了。
 			// 那么先采用看不见策略吧
 			PowerUpInstance->ActivatePowerUp();
-			PowerUpInstance->OnActivated();
-			PowerUpInstance = nullptr;
 
-			GetWorldTimerManager().SetTimer(TimerHandle_OnRespawn, this, &ASPickupActor::Respawn, PickUpInterval, true, PickUpDelay);
+			PowerUpInstance->SetActorLocation(FVector(0.f, 0.f, -10000.f));
+
+			// 设置道具刷新时间
+			float PickUpDelayBeyond = PickUpDelay + PowerUpInstance->GetTotalNumOfTick() / PowerUpInstance->GetPickInterval();
+
+			PowerUpInstance = nullptr;
+			
+			GetWorldTimerManager().SetTimer(TimerHandle_OnRespawn, this, &ASPickupActor::Respawn, PickUpInterval, true, PickUpDelayBeyond);
 		}
 	}
 }

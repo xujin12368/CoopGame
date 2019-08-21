@@ -7,6 +7,7 @@
 #include "SPowerUpActor.generated.h"
 
 class UStaticMeshComponent;
+class USceneComponent;
 
 UCLASS()
 class COOPGAME_API ASPowerUpActor : public AActor
@@ -18,6 +19,9 @@ public:
 	ASPowerUpActor();
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* SceneComp;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
@@ -54,4 +58,8 @@ public:
 	// 在每次更新的时候调用，用于调节更新细节，比如不叠加能力
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
 	void OnPowerUpTicked();
+
+	float GetTotalNumOfTick() const;
+
+	float GetPickInterval() const;
 };
