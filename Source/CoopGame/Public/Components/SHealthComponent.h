@@ -38,5 +38,8 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHealthChangedSignature OnHealthChanged;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void Heal(int32 HealAmount);
 		
 };

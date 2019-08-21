@@ -56,6 +56,7 @@ public:
 	void OnExpired();
 
 	// 在每次更新的时候调用，用于调节更新细节，比如不叠加能力
+	// 处理每次更新时会发生地事件，比如持续地回血
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
 	void OnPowerUpTicked();
 
