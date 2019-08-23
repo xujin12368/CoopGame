@@ -22,6 +22,10 @@ ASPickupActor::ASPickupActor()
 	DecalComp->DecalSize = FVector(75.f, 75.f, 75.f);
 
 	PickUpInterval = 3.f;
+
+	PowerUpInstance = nullptr;
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -29,8 +33,10 @@ void ASPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Respawn();
-	
+	if (Role == ROLE_Authority)
+	{
+		Respawn();
+	}
 }
 
 void ASPickupActor::Respawn()

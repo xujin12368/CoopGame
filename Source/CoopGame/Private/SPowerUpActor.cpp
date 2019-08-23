@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASPowerUpActor::ASPowerUpActor()
@@ -15,6 +16,8 @@ ASPowerUpActor::ASPowerUpActor()
 
 	NumOfTick = 0.f;
 
+	bPowerActivated = false;
+
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComp;
 
@@ -24,6 +27,8 @@ ASPowerUpActor::ASPowerUpActor()
 
 	RotatingMovementComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementComp"));
 	RotatingMovementComp->RotationRate = FRotator(0.f, 180.f, 0.f);
+
+	SetReplicates(true);
 
 }
 
@@ -46,15 +51,26 @@ void ASPowerUpActor::OnTickPowerUp()
 		GetWorldTimerManager().ClearTimer(TimerHandle_Pickup);
 
 		Destroy();
+
+		bPowerActivated = false;
+		OnRep_PowerActivate();
 	}
+}
+
+void ASPowerUpActor::OnRep_PowerActivate()
+{
+	OnPowerupActivateChanged(bPowerActivated);
 }
 
 void ASPowerUpActor::ActivatePowerUp()
 {
+	OnActivated();
+
+	bPowerActivated = true;
+	OnRep_PowerActivate();
+
 	if (PickInterval > 0.f)
 	{
-		OnActivated();
-
 		GetWorldTimerManager().SetTimer(TimerHandle_Pickup, this, &ASPowerUpActor::OnTickPowerUp, PickInterval, true, 0.f);
 	}
 	else
@@ -73,5 +89,12 @@ float ASPowerUpActor::GetTotalNumOfTick() const
 float ASPowerUpActor::GetPickInterval() const
 {
 	return PickInterval;
+}
+
+void ASPowerUpActor::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPowerUpActor, bPowerActivated);
 }
 

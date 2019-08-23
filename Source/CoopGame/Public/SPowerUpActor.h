@@ -39,6 +39,9 @@ protected:
 
 	FTimerHandle TimerHandle_Pickup;
 
+	UPROPERTY(ReplicatedUsing = OnRep_PowerActivate)
+	bool bPowerActivated;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -47,9 +50,16 @@ protected:
 	UFUNCTION()
 	void OnTickPowerUp();
 
+	UFUNCTION()
+	void OnRep_PowerActivate();
+
 public:
 	// 为了在第一次被拾取后开始计时
 	void ActivatePowerUp();
+
+	// 此函数在联网复制的时候执行, 用于更新Visibility状态
+	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
+	void OnPowerupActivateChanged(bool OnActivate);
 
 	// 在PowerUp被激活的时候调用，开始能力
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
