@@ -55,7 +55,7 @@ protected:
 
 public:
 	// 为了在第一次被拾取后开始计时
-	void ActivatePowerUp();
+	void ActivatePowerUp(AActor* ActivateFor);
 
 	// 此函数在联网复制的时候执行, 用于更新Visibility状态
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
@@ -63,7 +63,7 @@ public:
 
 	// 在PowerUp被激活的时候调用，开始能力
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")
-	void OnActivated();
+	void OnActivated(AActor* ActivateFor);
 
 	// 在计时器过期的时候调用，结束能力
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickups")

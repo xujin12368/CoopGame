@@ -50,10 +50,10 @@ void ASPowerUpActor::OnTickPowerUp()
 
 		GetWorldTimerManager().ClearTimer(TimerHandle_Pickup);
 
-		Destroy();
-
 		bPowerActivated = false;
 		OnRep_PowerActivate();
+		
+		Destroy();
 	}
 }
 
@@ -62,9 +62,9 @@ void ASPowerUpActor::OnRep_PowerActivate()
 	OnPowerupActivateChanged(bPowerActivated);
 }
 
-void ASPowerUpActor::ActivatePowerUp()
+void ASPowerUpActor::ActivatePowerUp(AActor* ActivateFor)
 {
-	OnActivated();
+	OnActivated(ActivateFor);
 
 	bPowerActivated = true;
 	OnRep_PowerActivate();

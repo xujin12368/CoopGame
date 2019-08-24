@@ -61,7 +61,7 @@ void ASPickupActor::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent
 			// 何时Destroy PowerUpInstance？
 			// Destroy的话，就没有后续的函数运行了。
 			// 那么先采用看不见策略吧
-			PowerUpInstance->ActivatePowerUp();
+			PowerUpInstance->ActivatePowerUp(OtherActor);
 
 			PowerUpInstance->SetActorLocation(FVector(0.f, 0.f, -10000.f));
 
