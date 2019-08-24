@@ -13,5 +13,50 @@ UCLASS()
 class COOPGAME_API ASGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+
+	ASGameMode();
+
+	virtual void StartPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	int32 WaveCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	int32 CoefficientPerWave;
+
+	int32 NumOfBotPerWave;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float TimeBetweenTwoWaves;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float BotSpawnRate;
+
+	FTimerHandle TimerHandle_SpawnBot;
+
+	FTimerHandle TimerHandle_NextWave;
+
+
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void SpawnNewBot();
+
+	// 配合蓝图函数SpawnNewBot使用，计算剩余Bot数量
+	void SpawnNewBotElapsed();
+
+	void StartWave();
+
+	void EndWave();
+
+	void PrepareNextWave();
+
+	void CheckBotAliveThenNextWave();
 	
 };

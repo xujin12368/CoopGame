@@ -66,6 +66,11 @@ void USHealthComponent::Heal(int32 HealAmount)
 	UE_LOG(LogTemp, Warning, TEXT("Current Health: %s (+)%s"), *FString::FromInt(Health), *FString::FromInt(HealAmount));
 }
 
+int32 USHealthComponent::GetHealth() const
+{
+	return Health;
+}
+
 void USHealthComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
