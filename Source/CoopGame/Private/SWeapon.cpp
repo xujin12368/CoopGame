@@ -279,6 +279,16 @@ int32 ASWeapon::GetTotalBulletNum() const
 	return TotalBullets;
 }
 
+float ASWeapon::GetBaseDamage() const
+{
+	return BaseDamage;
+}
+
+void ASWeapon::SetBaseDamage(float NewDamage)
+{
+	BaseDamage = NewDamage;
+}
+
 void ASWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

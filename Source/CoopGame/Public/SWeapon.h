@@ -127,4 +127,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	int32 GetTotalBulletNum() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	float GetBaseDamage() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void SetBaseDamage(float NewDamage);
+
 };
