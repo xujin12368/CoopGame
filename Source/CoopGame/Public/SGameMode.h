@@ -53,9 +53,9 @@ protected:
 	// 配合蓝图函数SpawnNewBot使用，计算剩余Bot数量
 	void SpawnNewBotElapsed();
 
-	void StartWave();
+	void StartWaveProgress();
 
-	void EndWave();
+	void EndWaveProgress();
 
 	void PrepareNextWave();
 

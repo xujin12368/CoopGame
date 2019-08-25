@@ -9,6 +9,8 @@
 UENUM(BlueprintType)
 enum class EWaveState : uint8
 {
+	WaitingToStart,
+
 	WaveInProgress,
 
 	// 不在生成Bot，等待玩家消灭所有Bot
@@ -28,11 +30,15 @@ class COOPGAME_API ASGameState : public AGameStateBase
 	GENERATED_BODY()
 	
 public:
+	// 此函数只在Server调用
+	void SetWaveState(EWaveState NewState);
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const;
+
+protected:
 	// 每次使用了ReplicatedUsing一定要记得添加GetLifetimeReplicatedProps
 	UPROPERTY(ReplicatedUsing = OnRep_WaveState, BlueprintReadOnly, Category = "GameState")
 	EWaveState WaveState;
-
-	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const;
 
 protected:
 	UFUNCTION()

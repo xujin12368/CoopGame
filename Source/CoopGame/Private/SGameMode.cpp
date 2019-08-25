@@ -44,29 +44,34 @@ void ASGameMode::SpawnNewBotElapsed()
 
 	if (NumOfBotPerWave <= 0)
 	{
-		EndWave();
+		EndWaveProgress();
 	}
 }
 
-void ASGameMode::StartWave()
+void ASGameMode::StartWaveProgress()
 {
+	SetWaveState(EWaveState::WaveInProgress);
+
 	WaveCount++;
 
 	NumOfBotPerWave = CoefficientPerWave * WaveCount;
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBot, this, &ASGameMode::SpawnNewBotElapsed, BotSpawnRate, true, 0.f);
+
 }
 
-void ASGameMode::EndWave()
+void ASGameMode::EndWaveProgress()
 {
-	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBot);
+	SetWaveState(EWaveState::WaitingToComplete);
 
-	// PrepareNextWave(); // 让Bot都死亡后再生成
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBot);
 }
 
 void ASGameMode::PrepareNextWave()
 {
-	GetWorldTimerManager().SetTimer(TimerHandle_NextWave, this, &ASGameMode::StartWave, TimeBetweenTwoWaves, false);
+	SetWaveState(EWaveState::WaitingToStart);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_NextWave, this, &ASGameMode::StartWaveProgress, TimeBetweenTwoWaves, false);
 }
 
 void ASGameMode::CheckBotAliveThenNextWave()
@@ -98,6 +103,8 @@ void ASGameMode::CheckBotAliveThenNextWave()
 
 	if (!bAnyBotAlive)
 	{
+		SetWaveState(EWaveState::WaveComplete);
+
 		PrepareNextWave();
 	}
 
@@ -125,8 +132,9 @@ void ASGameMode::CheckAnyPlayerAlive()
 
 void ASGameMode::GameOver()
 {
-	EndWave();
+	EndWaveProgress();
 
+	SetWaveState(EWaveState::GameOver);
 	// @TODO: Handle Game Over
 	UE_LOG(LogTemp, Warning, TEXT("Player Died , Game Over."));
 }
@@ -136,6 +144,6 @@ void ASGameMode::SetWaveState(EWaveState NewWaveState)
 	ASGameState* GS = GetGameState<ASGameState>();
 	if (ensureAlways(GS)) // ensureAlways让我能够一直收到通知
 	{
-		GS->WaveState = NewWaveState;
+		GS->SetWaveState(NewWaveState);
 	}
 }
