@@ -58,5 +58,9 @@ protected:
 	void PrepareNextWave();
 
 	void CheckBotAliveThenNextWave();
+
+	void CheckAnyPlayerAlive();
+
+	void GameOver();
 	
 };

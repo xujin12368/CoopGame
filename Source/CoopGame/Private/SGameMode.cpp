@@ -29,6 +29,8 @@ void ASGameMode::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	CheckBotAliveThenNextWave();
+
+	CheckAnyPlayerAlive();
 }
 
 void ASGameMode::SpawnNewBotElapsed()
@@ -96,4 +98,32 @@ void ASGameMode::CheckBotAliveThenNextWave()
 		PrepareNextWave();
 	}
 
+}
+
+void ASGameMode::CheckAnyPlayerAlive()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (PC && PC->GetPawn())
+		{
+			APawn* PlayerPawn = PC->GetPawn();
+			USHealthComponent* HealthComp = Cast<USHealthComponent>(PlayerPawn->GetComponentByClass(USHealthComponent::StaticClass()));
+			if (ensure(HealthComp) && HealthComp->GetHealth() > 0)
+			{
+				return;
+			}
+		}
+	}
+
+	// If Any Player Alive
+	GameOver();
+}
+
+void ASGameMode::GameOver()
+{
+	EndWave();
+
+	// @TODO: Handle Game Over
+	UE_LOG(LogTemp, Warning, TEXT("Player Died , Game Over."));
 }
