@@ -4,6 +4,7 @@
 #include "SGameMode.h"
 #include "TimerManager.h"
 #include "Components/SHealthComponent.h"
+#include "SGameState.h"
 
 ASGameMode::ASGameMode()
 {
@@ -15,6 +16,8 @@ ASGameMode::ASGameMode()
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1.f;
+
+	GameStateClass = ASGameState::StaticClass();
 }
 
 void ASGameMode::StartPlay()
@@ -126,4 +129,13 @@ void ASGameMode::GameOver()
 
 	// @TODO: Handle Game Over
 	UE_LOG(LogTemp, Warning, TEXT("Player Died , Game Over."));
+}
+
+void ASGameMode::SetWaveState(EWaveState NewWaveState)
+{
+	ASGameState* GS = GetGameState<ASGameState>();
+	if (ensureAlways(GS)) // ensureAlways让我能够一直收到通知
+	{
+		GS->WaveState = NewWaveState;
+	}
 }
