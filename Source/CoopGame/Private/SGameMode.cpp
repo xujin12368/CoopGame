@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 #include "Components/SHealthComponent.h"
 #include "SGameState.h"
+#include "SPlayerState.h"
 
 ASGameMode::ASGameMode()
 {
@@ -18,6 +19,7 @@ ASGameMode::ASGameMode()
 	PrimaryActorTick.TickInterval = 1.f;
 
 	GameStateClass = ASGameState::StaticClass();
+	PlayerStateClass = ASPlayerState::StaticClass();
 }
 
 void ASGameMode::StartPlay()

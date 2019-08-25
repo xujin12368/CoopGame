@@ -8,6 +8,9 @@
 
 enum class EWaveState : uint8;
 
+// 此事件用于在所有拥有HealthComp的Actor被击杀时调用
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KiilerActor, AController*, InstigatedBy);
+
 /**
  * 
  */
@@ -15,6 +18,10 @@ UCLASS()
 class COOPGAME_API ASGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintAssignable, Category ="GameMode")
+	FOnActorKilled OnActorKilled;
 
 public:
 
