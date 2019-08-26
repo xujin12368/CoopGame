@@ -29,9 +29,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URotatingMovementComponent* RotatingMovementComp;
 
+	// 道具持续时间 = TotalNumOfTick / PickInterval
+	// @PickInterval是OnTickPowerUp刷新的时间
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	float PickInterval;
 
+	// @TotalNumOfTick是OnTickPowerUp刷新次数
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	int32 TotalNumOfTick;
 

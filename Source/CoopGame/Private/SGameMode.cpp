@@ -64,9 +64,12 @@ void ASGameMode::StartWaveProgress()
 
 void ASGameMode::EndWaveProgress()
 {
-	SetWaveState(EWaveState::WaitingToComplete);
+	if (GetWorldTimerManager().IsTimerActive(TimerHandle_SpawnBot))
+	{
+		SetWaveState(EWaveState::WaitingToComplete);
 
-	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBot);
+		GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBot);
+	}
 }
 
 void ASGameMode::PrepareNextWave()
@@ -74,6 +77,8 @@ void ASGameMode::PrepareNextWave()
 	SetWaveState(EWaveState::WaitingToStart);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWave, this, &ASGameMode::StartWaveProgress, TimeBetweenTwoWaves, false);
+
+	RespawnDeadPlayer();
 }
 
 void ASGameMode::CheckBotAliveThenNextWave()
@@ -147,5 +152,17 @@ void ASGameMode::SetWaveState(EWaveState NewWaveState)
 	if (ensureAlways(GS)) // ensureAlways让我能够一直收到通知
 	{
 		GS->SetWaveState(NewWaveState);
+	}
+}
+
+void ASGameMode::RespawnDeadPlayer()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (PC && PC->GetPawn() == nullptr)
+		{
+			RestartPlayer(PC);
+		}
 	}
 }
