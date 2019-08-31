@@ -68,10 +68,6 @@ protected:
 
 	void EndZoom();
 
-	void StartFire();
-
-	void StopFire();
-
 	void SpawnWeapon();
 
 	void ProcessWeaponBullet();
@@ -90,5 +86,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	ASWeapon* GetCurrentWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFire();
 
 };

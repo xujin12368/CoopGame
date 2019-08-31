@@ -82,7 +82,7 @@ void ASWeapon::Fire()
 
 		EPhysicalSurface PhysicalSurfaceMat = EPhysicalSurface::SurfaceType_Default;
 		
-		FCollisionQueryParams QueryParams = new FCollisionQueryParams();
+		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(MyOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
