@@ -35,6 +35,8 @@ ASWeapon::ASWeapon()
 
 	FireRate = 600.f;
 
+	BulletSpread = 2.f;
+
 	BulletUpperLimit = 30;
 	CurrentBullet = 30;
 	TotalBullets = 90;
@@ -76,7 +78,13 @@ void ASWeapon::Fire()
 		FRotator OutRotation;
 		MyOwner->GetActorEyesViewPoint(TraceStart, OutRotation);
 
-		TraceEnd = TraceStart + OutRotation.Vector() * 10000;
+		FVector ShotDirection = OutRotation.Vector();
+
+		// Bullet Spread
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
+
+		TraceEnd = TraceStart + ShotDirection * 10000;
 
 		FVector TraceEndPoint = TraceEnd;
 

@@ -88,6 +88,9 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_HitScanTrace)
 	FHitScanTrace HitScanTrace;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin = 0.f))
+	float BulletSpread;
+
 protected:
 	virtual void BeginPlay() override;
 
