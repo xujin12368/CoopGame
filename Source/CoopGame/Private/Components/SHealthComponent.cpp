@@ -9,7 +9,7 @@
 // Sets default values for this component's properties
 USHealthComponent::USHealthComponent()
 {
-	DefaultHealth = 100;
+	DefaultHealth = 100.f;
 
 	bIsDied = false;
 
@@ -37,7 +37,7 @@ void USHealthComponent::BeginPlay()
 	
 }
 
-void USHealthComponent::OnRep_Health(int32 OldHealth)
+void USHealthComponent::OnRep_Health(float OldHealth)
 {
 	float Damage = Health - OldHealth;
 	OnHealthChanged.Broadcast(this, Health, Damage, nullptr, nullptr, nullptr);
@@ -80,14 +80,14 @@ void USHealthComponent::Heal(int32 HealAmount)
 		return;
 	}
 
-	Health = FMath::Clamp(Health + HealAmount, 0, DefaultHealth);
+	Health = FMath::Clamp(Health + HealAmount, 0.f, DefaultHealth);
 
 	OnHealthChanged.Broadcast(this, Health, - HealAmount, nullptr, nullptr, nullptr);
 
 	UE_LOG(LogTemp, Warning, TEXT("Current Health: %s (+)%s"), *FString::FromInt(Health), *FString::FromInt(HealAmount));
 }
 
-int32 USHealthComponent::GetHealth() const
+float USHealthComponent::GetHealth() const
 {
 	return Health;
 }

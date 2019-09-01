@@ -59,7 +59,7 @@ protected:
 	void OnRep_Explosive();
 
 	UFUNCTION()
-	void HandleChangedHealth(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void HandleChangedHealth(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame

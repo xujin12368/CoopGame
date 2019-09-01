@@ -180,9 +180,9 @@ ASWeapon* ASCharacter::GetCurrentWeapon() const
 	return nullptr;
 }
 
-void ASCharacter::OnHealthChange(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void ASCharacter::OnHealthChange(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Health <= 0 && !bDied)
+	if (Health <= 0.f && !bDied)
 	{
 		// Died
 		bDied = true;

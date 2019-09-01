@@ -192,7 +192,7 @@ void ASTracerBot::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	}
 }
 
-void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (MatInstance == nullptr)
 	{
@@ -204,7 +204,7 @@ void ASTracerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, int32 He
 	}
 
 	// Explosive when died.
-	if (Health <= 0)
+	if (Health <= 0.f)
 	{
 		SelfDestruct();
 	}

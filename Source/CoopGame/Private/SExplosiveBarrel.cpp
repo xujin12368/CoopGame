@@ -53,7 +53,7 @@ void ASExplosiveBarrel::BeginPlay()
 	
 }
 
-void ASExplosiveBarrel::HandleChangedHealth(USHealthComponent* HealthComp, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void ASExplosiveBarrel::HandleChangedHealth(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 
 	if (bDestroyed)
@@ -61,7 +61,7 @@ void ASExplosiveBarrel::HandleChangedHealth(USHealthComponent* HealthComp, int32
 		return;
 	}
 
-	if (Health <= 0)
+	if (Health <= 0.f)
 	{
 		bDestroyed = true;
 

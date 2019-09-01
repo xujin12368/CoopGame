@@ -73,7 +73,7 @@ protected:
 	void ProcessWeaponBullet();
 
 	UFUNCTION()
-	void OnHealthChange(USHealthComponent* HealthComponent, int32 Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChange(USHealthComponent* HealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame
