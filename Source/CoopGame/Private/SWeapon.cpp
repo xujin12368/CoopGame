@@ -113,7 +113,7 @@ void ASWeapon::Fire()
 				OutRotation.Vector(), 
 				OutHitResult, 
 				MyOwner->GetInstigatorController(), 
-				this, 
+				MyOwner, // ÉËº¦·¢ÆğÕß, this or Owner.
 				DamageType
 			);
 

@@ -27,6 +27,9 @@ protected:
 
 	bool bIsDied;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Team")
+	uint8 TeamNum;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -46,5 +49,8 @@ public:
 	void Heal(int32 HealAmount);
 
 	int32 GetHealth() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Team")
+	static bool IsFriendly(AActor* ActorA, AActor* ActorB);
 		
 };
