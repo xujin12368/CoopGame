@@ -26,13 +26,15 @@ ASTracerBot::ASTracerBot()
 	bAccelChange = false;
 
 	ExplosionDamage = 50.f;
-	ExplosionRadius = 100.f;
+	ExplosionRadius = 200.f;
 	DamageSelfRate = 1.f;
 
 	bExplosionSelf = false;
 
 	MyMaxPowerLevel = 10;
 	MyPowerLevel = 0;
+
+	RateOfRepath = 3.f;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCanEverAffectNavigation(false);
@@ -64,14 +66,43 @@ void ASTracerBot::BeginPlay()
 
 FVector ASTracerBot::GetNextMovePathPoint()
 {
-	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
+	APawn* BestTarget = nullptr;
+	float NearestDistance = FLT_MAX;
 
-	// 放在Tick里面，每次都是新的ActorLocation，所以每次Tick都会向着前方的PathPoint行进
-	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
-
-	if (NavPath && NavPath->PathPoints.Num() > 1)
+	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
 	{
-		return NavPath->PathPoints[1];
+		APawn* TestPawn = It->Get();
+		if (TestPawn == nullptr || USHealthComponent::IsFriendly(TestPawn, this))
+		{
+			continue;
+		}
+
+		USHealthComponent* TestPawnHealthComp = Cast<USHealthComponent>(TestPawn->GetComponentByClass(USHealthComponent::StaticClass()));
+		if (TestPawnHealthComp && TestPawnHealthComp->GetHealth() > 0.f)
+		{
+			float Distance = (TestPawn->GetActorLocation() - GetActorLocation()).Size();
+
+			if (Distance < NearestDistance)
+			{
+				NearestDistance = Distance;
+				BestTarget = TestPawn;
+			}
+		}
+	}
+
+	if (BestTarget)
+	{
+		// 放在Tick里面，每次都是新的ActorLocation，所以每次Tick都会向着前方的PathPoint行进
+		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), BestTarget);
+
+		/* 防卡死机制 */
+		GetWorldTimerManager().ClearTimer(TimerHandle_Repath);
+		GetWorldTimerManager().SetTimer(TimerHandle_Repath, this, &ASTracerBot::Repath, RateOfRepath, false);
+
+		if (NavPath && NavPath->PathPoints.Num() > 1)
+		{
+			return NavPath->PathPoints[1];
+		}
 	}
 
 	return GetActorLocation();
@@ -177,10 +208,15 @@ void ASTracerBot::DamageSelf()
 	}
 }
 
+void ASTracerBot::Repath()
+{
+	NextPathPoint = GetNextMovePathPoint();
+}
+
 void ASTracerBot::HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	ACharacter* PlayerPawn = Cast<ACharacter>(OtherActor);
-	if (!bExplosionSelf && PlayerPawn)
+	if (!bExplosionSelf && PlayerPawn && !USHealthComponent::IsFriendly(OtherActor, this))
 	{
 		UGameplayStatics::SpawnSoundAttached(ReadyToExplovieSound, RootComponent);
 
@@ -233,7 +269,5 @@ void ASTracerBot::Tick(float DeltaTime)
 			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
 		}
 	}
-
-
 }
 

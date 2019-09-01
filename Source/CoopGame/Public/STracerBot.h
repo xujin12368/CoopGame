@@ -62,6 +62,8 @@ protected:
 
 	FTimerHandle TimerHandle_ScanPartner;
 
+	FTimerHandle TimerHandle_Repath;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	USoundCue* ExplosionSound;
 
@@ -78,6 +80,9 @@ protected:
 
 	int32 MyPowerLevel;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float RateOfRepath;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -89,6 +94,8 @@ protected:
 	void SelfDestruct();
 
 	void DamageSelf();
+
+	void Repath();
 
 	UFUNCTION()
 	void HandleSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
