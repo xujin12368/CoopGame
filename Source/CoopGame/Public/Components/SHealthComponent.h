@@ -46,7 +46,7 @@ public:
 	FOnHealthChangedSignature OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void Heal(int32 HealAmount);
+	void Heal(float HealAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetHealth() const;

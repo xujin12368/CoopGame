@@ -14,6 +14,14 @@
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
+static int32 DrawDebugTracerBot = 0;
+FAutoConsoleVariableRef CVARDrawDebugTracerBot(
+	TEXT("COOP.DrawDebugTracerBot"),
+	DrawDebugTracerBot,
+	TEXT("Draw Debug Line For Weapons."),
+	EConsoleVariableFlags::ECVF_Cheat
+);
+
 // Sets default values
 ASTracerBot::ASTracerBot()
 {
@@ -196,7 +204,10 @@ void ASTracerBot::SelfDestruct()
 
 		SetLifeSpan(2.f);
 
-		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+		if (DrawDebugTracerBot)
+		{
+			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+		}
 	}
 }
 
@@ -266,7 +277,10 @@ void ASTracerBot::Tick(float DeltaTime)
 
 			MeshComp->AddForce(MoveDirection * ForceStrength, NAME_None, bAccelChange);
 
-			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
+			if (DrawDebugTracerBot)
+			{
+				DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), NextPathPoint, 10.f, FColor::Yellow, false, 0.f, 0, 1.f);
+			}
 		}
 	}
 }

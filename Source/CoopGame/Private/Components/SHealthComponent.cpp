@@ -73,7 +73,7 @@ void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, 
 
 }
 
-void USHealthComponent::Heal(int32 HealAmount)
+void USHealthComponent::Heal(float HealAmount)
 {
 	if (HealAmount <= 0 || Health <= 0)
 	{
